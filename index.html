@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Web Scraper Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🕷️ Web Scraper Dashboard</h1>
+    <p>Scraping quotes from quotes.toscrape.com</p>
+    <div class="stats">
+      <span>📊 Total Quotes: <strong id="total">{{ total }}</strong></span>
+    </div>
+    <div class="actions">
+      <button onclick="scrapeNow()">🔄 Scrape Now</button>
+      <button onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+  </div>
+  <div id="message" class="message hidden"></div>
+  <div class="quotes-grid" id="quotesGrid">
+    {% for quote in quotes %}
+    <div class="quote-card">
+      <p class="quote-text">{{ quote[1] }}</p>
+      <p class="quote-author">— {{ quote[2] }}</p>
+      <p class="quote-tags">🏷️ {{ quote[3] }}</p>
+      <p class="quote-time">⏰ {{ quote[4] }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  function showMessage(msg, success=true) {
+    const el = document.getElementById('message');
+    el.textContent = msg;
+    el.className = 'message ' + (success ? 'success' : 'error');
+    setTimeout(() => el.className = 'message hidden', 3000);
+  }
+  async function scrapeNow() {
+    showMessage('Scraping...');
+    const res = await fetch('/scrape');
+    const data = await res.json();
+    document.getElementById('total').textContent = data.total;
+    showMessage(data.message);
+    setTimeout(() => location.reload(), 1500);
+  }
+  async function exportCSV() {
+    const res = await fetch('/export');
+    const data = await res.json();
+    showMessage(data.message);
+  }
+</script>
+</body>
+</html>
